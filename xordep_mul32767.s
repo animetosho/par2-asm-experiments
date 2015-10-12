@@ -47,11 +47,13 @@ rs_process_xordep_mul32767:
  movaps      xmm14,xmmword ptr [rax+0xE0]  
  movaps      xmm15,xmmword ptr [rax+0xF0]  
 
-# process 256 bytes
+# process 256 bytes; algorithm does it in 32 byte 'sub-blocks'
+ movaps      xmm0,xmmword ptr [rdx] 
+ movdqa      xmm1,xmmword ptr [rdx+0x10]
  movaps      xmm2,xmmword ptr [rax]  
  xorps       xmm2,xmmword ptr [rax+0x10]  
- movdqa      xmm1,xmmword ptr [rax+0x20]  
- movaps      xmm0,xmm3  
+ pxor        xmm1,xmmword ptr [rax+0x20]  
+ xorps       xmm0,xmm3  
  xorps       xmm2,xmm4  
  xorps       xmm2,xmm5  
  xorps       xmm2,xmm6  
@@ -65,12 +67,15 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx],xmm0  
  movdqa      xmmword ptr [rdx+0x10],xmm1  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0x20] 
+ movdqa      xmm1,xmmword ptr [rdx+0x30]
  movaps      xmm2,xmmword ptr [rax]  
  xorps       xmm2,xmmword ptr [rax+0x10]  
  xorps       xmm2,xmmword ptr [rax+0x20]  
  xorps       xmm2,xmm3  
- movdqa      xmm1,xmm4  
- movaps      xmm0,xmm5  
+ pxor        xmm1,xmm4  
+ xorps       xmm0,xmm5  
  xorps       xmm2,xmm6  
  xorps       xmm2,xmm7  
  xorps       xmm2,xmm8  
@@ -82,8 +87,11 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0x20],xmm0  
  movdqa      xmmword ptr [rdx+0x30],xmm1  
- movdqa      xmm1,xmmword ptr [rax]  
- movaps      xmm0,xmmword ptr [rax+0x20]  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0x40] 
+ movdqa      xmm1,xmmword ptr [rdx+0x50]
+ pxor        xmm1,xmmword ptr [rax]  
+ xorps       xmm0,xmmword ptr [rax+0x20]  
  pxor        xmm1,xmm3  
  xorps       xmm0,xmm6  
  movaps      xmm2,xmm7  
@@ -99,8 +107,11 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0x40],xmm0  
  movdqa      xmmword ptr [rdx+0x50],xmm1  
- movdqa      xmm1,xmmword ptr [rax]  
- movaps      xmm0,xmmword ptr [rax+0x10]  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0x60] 
+ movdqa      xmm1,xmmword ptr [rdx+0x70]
+ pxor        xmm1,xmmword ptr [rax]  
+ xorps       xmm0,xmmword ptr [rax+0x10]  
  pxor        xmm1,xmmword ptr [rax+0x20]  
  xorps       xmm0,xmm4  
  pxor        xmm1,xmm5  
@@ -116,9 +127,12 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0x60],xmm0  
  movdqa      xmmword ptr [rdx+0x70],xmm1  
- movaps      xmm0,xmmword ptr [rax]  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0x80] 
+ movdqa      xmm1,xmmword ptr [rdx+0x90]
+ xorps       xmm0,xmmword ptr [rax]  
  movaps      xmm2,xmmword ptr [rax+0x10]  
- movdqa      xmm1,xmmword ptr [rax+0x20]  
+ pxor        xmm1,xmmword ptr [rax+0x20]  
  xorps       xmm0,xmm3  
  pxor        xmm1,xmm4  
  xorps       xmm0,xmm6  
@@ -133,8 +147,11 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0x80],xmm0  
  movdqa      xmmword ptr [rdx+0x90],xmm1  
- movaps      xmm0,xmmword ptr [rax]  
- movdqa      xmm1,xmmword ptr [rax+0x10]  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0xA0] 
+ movdqa      xmm1,xmmword ptr [rdx+0xB0]
+ xorps       xmm0,xmmword ptr [rax]  
+ pxor        xmm1,xmmword ptr [rax+0x10]  
  xorps       xmm0,xmmword ptr [rax+0x20]  
  movaps      xmm2,xmm3  
  pxor        xmm1,xmm4  
@@ -150,12 +167,15 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0xA0],xmm0  
  movdqa      xmmword ptr [rdx+0xB0],xmm1  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0xC0] 
+ movdqa      xmm1,xmmword ptr [rdx+0xD0]
  movaps      xmm2,xmmword ptr [rax]  
- movaps      xmm0,xmmword ptr [rax+0x20]  
+ xorps       xmm0,xmmword ptr [rax+0x20]  
  xorps       xmm2,xmm4  
  xorps       xmm0,xmm5  
  xorps       xmm0,xmm7  
- movdqa      xmm1,xmm8  
+ pxor        xmm1,xmm8  
  xorps       xmm0,xmm10  
  pxor        xmm1,xmm12  
  pxor        xmm1,xmm13  
@@ -165,9 +185,12 @@ rs_process_xordep_mul32767:
  pxor        xmm1,xmm2  
  movaps      xmmword ptr [rdx+0xC0],xmm0  
  movdqa      xmmword ptr [rdx+0xD0],xmm1  
+ 
+ movaps      xmm0,xmmword ptr [rdx+0xE0] 
+ movdqa      xmm1,xmmword ptr [rdx+0xF0]
  movaps      xmm2,xmmword ptr [rax]  
- movaps      xmm0,xmmword ptr [rax+0x10]  
- movdqa      xmm1,xmmword ptr [rax+0x20]  
+ xorps       xmm0,xmmword ptr [rax+0x10]  
+ pxor        xmm1,xmmword ptr [rax+0x20]  
  pxor        xmm1,xmm3  
  pxor        xmm1,xmm4  
  xorps       xmm2,xmm5  
