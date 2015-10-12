@@ -6,7 +6,10 @@
  * compile with:
  *  x86_64-w64-mingw32-gcc to make a.exe
  *
- * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu11 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s asm-avx2-vgatherdd.s intrin-pinsrw.c asm-pinsrw*.s
+ * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s asm-avx2-vgatherdd.s intrin-pinsrw.c asm-pinsrw*.s
+ * (or, for older compilers)
+ * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s intrin-pinsrw.c asm-pinsrw*.s
+ *
  * some ASM files have IACA marks in them, but the illegal-instruction code is only illegal for 32bit code.
  *
  * run with:
@@ -53,6 +56,13 @@
 #else
 #define HAVE_AVX2 0
 #endif
+
+#ifdef __AVX__
+#define VZEROUPPER if(HAVE_AVX2) _mm256_zeroupper();
+#else
+#define VZEROUPPER
+#endif
+
 
 static __inline__ uint64_t rdtsc() {
     uint32_t low, high;
@@ -102,14 +112,14 @@ static uint64_t time_rs(rs_procfunc_t *fn, void* dst, const void* src, size_t si
 {
 	uint64_t starttime, stoptime;
 
-	_mm256_zeroupper();
+	VZEROUPPER
 	starttime = rdtsc();
 	const int maxiter = ITERS;
 	for (int c=0 ; c<maxiter ; c++) {
 		fn(dst, src, size, LH);
 	}
 	stoptime = rdtsc();
-	_mm256_zeroupper();
+	VZEROUPPER
 	return stoptime - starttime;
 }
 
@@ -128,7 +138,7 @@ int main (int argc, char *argv[])
 	for (int i=0; i<512; i++) {
 		lhTable[i+64/sizeof(*lhTable)] = i;
 	}
-	typeof (*lhTable) *LH = lhTable + 64/sizeof(*lhTable);
+	LH_TABLE_T *LH = lhTable + 64/sizeof(*lhTable);
 	// LH has zeroes before it, and starts at the beginning of a cache line.
 	// It is all in one page (including padding)
 
@@ -184,7 +194,7 @@ int main (int argc, char *argv[])
 	puts ("----------------");
 #endif
 	for (int i=0 ; i<3 ; i++) {
-		_mm256_zeroupper();
+		VZEROUPPER
 #ifndef ONE_ALGO_ONLY
 		time_rs_print ("orig MMX-unpck", rs_process_x86_64_mmx_orig, dstbuf, srcbuf, size, LH);
 //		time_rs_print ("MMX w/ 64b rdx", rs_process_x86_64_mmx, dstbuf, srcbuf, size, LH);
@@ -195,15 +205,19 @@ int main (int argc, char *argv[])
 		time_rs_print ("pinsrw-intrin ", rs_process_pinsrw_intrin, dstbuf, srcbuf, size, LH);
 		time_rs_print ("Pure C        ", rs_process_purec, dstbuf, srcbuf, size, LH);
 //		time_rs_print ("uoptest       ", rs_process_uoptest, dstbuf, srcbuf, size, LH);
+#ifdef __AVX__
 		time_rs_print ("nolut AVX     ", rs_process_nolut_intrin, dstbuf, srcbuf, size, LH);
+#endif
 #else
 		time_rs_print ("pinsrw128     ", rs_process_pinsrw128, dstbuf, srcbuf, size, LH);
 #endif
 		// fflush(stdout);
+#ifdef __AVX__
 		if (HAVE_AVX2) {
 			time_rs_print ("AVX2 vgather  ", rs_process_vgather_align32, dstbuf, srcbuf, size, LH);
 			time_rs_print ("AVX2 vgather  ", rs_process_vgather_align32, dstbuf, srcbuf, size, LH);
 		}
+#endif
 	}
 
 	puts ("----------------");

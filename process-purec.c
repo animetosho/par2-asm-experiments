@@ -37,8 +37,8 @@ void SYSV_ABI rs_process_purec_64b(void* dstvoid, const void* srcvoid, size_t si
 
 	// GCC is silly and keeps L and H in separate regs, instead of using an addressing mode with a displacement
 	// or even worse, generates add $256, %index_reg   and then uses a load with no displacement
-	typeof(LH) L = LH;
-	typeof(LH) H = LH+256;
+	const uint32_t* L = LH;
+	const uint32_t* H = LH+256;
 
 	size &= ~0x07;	// multiple of 8
 	const uint64_t *src64 = srcvoid;
@@ -82,8 +82,8 @@ void SYSV_ABI rs_process_purec_64b(void* dstvoid, const void* srcvoid, size_t si
 /**************** uint32_t version ****************/
 void SYSV_ABI rs_process_purec_32b(void* dstvoid, const void* srcvoid, size_t size, const uint32_t* LH)
 {
-	typeof(LH) L = LH;
-	typeof(LH) H = LH+256;
+	const uint32_t* L = LH;
+	const uint32_t* H = LH+256;
 
 	size &= ~0x07;	// multiple of 8
 	const uint32_t *src32 = srcvoid;

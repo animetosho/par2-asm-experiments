@@ -25,8 +25,8 @@ void SYSV_ABI rs_process_pinsrw_intrin(void* dstvoid, const void* srcvoid, size_
 	const uint64_t *src = srcvoid;
 	__m128i *dst = dstvoid;
 
-	const typeof(LH) L = LH;
-	const typeof(LH) H = LH + 256;
+	const uint32_t* L = LH;
+	const uint32_t* H = LH + 256;
 
 //	_mm256_zeroupper();
 	for (size_t i = 0; i < size/sizeof(*dst) ; i+=1) {

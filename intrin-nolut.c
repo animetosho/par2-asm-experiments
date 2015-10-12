@@ -1,3 +1,4 @@
+#ifdef __AVX__
 //#define _GNU_SOURCE
 #include <emmintrin.h>
 #include <immintrin.h> // vzeroupper
@@ -240,3 +241,5 @@ void SYSV_ABI rs_process_nolut_intrin(void* dstvoid, const void* srcvoid, size_t
  *   VPSLLVW doesn't exist until AVX512BW.  AVX2 only has D and Q sizes.
  *    On Haswell, those take 3 uops anyway (lat=2, recip tput=2).  useless without fast vshift
  */
+
+#endif
