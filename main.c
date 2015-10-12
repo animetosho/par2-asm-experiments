@@ -6,9 +6,9 @@
  * compile with:
  *  x86_64-w64-mingw32-gcc to make a.exe
  *
- * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s asm-avx2-vgatherdd.s intrin-pinsrw.c asm-pinsrw*.s
+ * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s asm-avx2-vgatherdd.s intrin-pinsrw.c asm-pinsrw*.s xordep*.[cs]
  * (or, for older compilers)
- * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s intrin-pinsrw.c asm-pinsrw*.s
+ * gcc -DIACA_MARKS_OFF -o rs-asmbench -g -Wall -march=native -funroll-loops -O3 -std=gnu99 main.c process-purec.c intrin-nolut.c reedsolomon-x86_64-mmx.s reedsolomon-x86_64-mmx-orig.s intrin-pinsrw.c asm-pinsrw*.s xordep*.[cs]
  *
  * some ASM files have IACA marks in them, but the illegal-instruction code is only illegal for 32bit code.
  *
@@ -85,6 +85,7 @@ void SYSV_ABI rs_process_pinsrw64(void* dst, const void* src, size_t size, const
 void SYSV_ABI rs_process_pinsrw128(void* dst, const void* src, size_t size, const uint32_t* LH);
 void SYSV_ABI rs_process_pinsrw_nodep(void* dst, const void* src, size_t size, const uint32_t* LH);
 void SYSV_ABI rs_process_uoptest(void* dst, const void* src, size_t size, const uint32_t* LH);
+void SYSV_ABI rs_process_xordep_mul32767(void* dst, const void* src, size_t size, const uint32_t* LH);
 // rs_process_pinsrw_intrin
 void SYSV_ABI rs_dummy(void* dst, const void* src, size_t size, const uint32_t* LH) { }
 void SYSV_ABI rs_memcpy(void* dst, const void* src, size_t size, const uint32_t* LH) { memcpy(dst, src, size) ;}
@@ -193,6 +194,7 @@ int main (int argc, char *argv[])
 	time_rs_print ("pinsrw-intrin ", rs_process_pinsrw_intrin, dstbuf, srcbuf, size, LH);
 //	time_rs_print ("pinsrw-unpipe ", rs_process_pinsrw_unpipelined, dstbuf, srcbuf, size, LH);
 	time_rs_print ("Pure C        ", rs_process_purec, dstbuf, srcbuf, size, LH);
+	time_rs_print ("xord mul32767 ", rs_process_xordep_mul32767, dstbuf, srcbuf, size, LH);
 	puts ("----------------");
 #endif
 	for (int i=0 ; i<3 ; i++) {
@@ -213,6 +215,7 @@ int main (int argc, char *argv[])
 #else
 		time_rs_print ("pinsrw128     ", rs_process_pinsrw128, dstbuf, srcbuf, size, LH);
 #endif
+		time_rs_print ("xord mul32767 ", rs_process_xordep_mul32767, dstbuf, srcbuf, size, LH);
 		// fflush(stdout);
 #ifdef __AVX__
 		if (HAVE_AVX2) {
