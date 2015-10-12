@@ -87,6 +87,7 @@ void SYSV_ABI rs_process_pinsrw_nodep(void* dst, const void* src, size_t size, c
 void SYSV_ABI rs_process_uoptest(void* dst, const void* src, size_t size, const uint32_t* LH);
 // rs_process_pinsrw_intrin
 void SYSV_ABI rs_dummy(void* dst, const void* src, size_t size, const uint32_t* LH) { }
+void SYSV_ABI rs_memcpy(void* dst, const void* src, size_t size, const uint32_t* LH) { memcpy(dst, src, size) ;}
 
 #ifdef PERF_ONE
   #define ONE_ALGO_ONLY
@@ -187,6 +188,7 @@ int main (int argc, char *argv[])
 	time_rs_print ("pinsrw128     ", rs_process_pinsrw128, dstbuf, srcbuf, size, LH);
 	time_rs_print ("orig MMX-unpck", rs_process_x86_64_mmx_orig, dstbuf, srcbuf, size, LH);
 	time_rs_print ("dummy         ", rs_dummy, dstbuf, srcbuf, size, LH);
+	time_rs_print ("memcpy        ", rs_memcpy, dstbuf, srcbuf, size, LH);
 	time_rs_print ("MMX w/ 64b rdx", rs_process_x86_64_mmx, dstbuf, srcbuf, size, LH);
 	time_rs_print ("pinsrw-intrin ", rs_process_pinsrw_intrin, dstbuf, srcbuf, size, LH);
 //	time_rs_print ("pinsrw-unpipe ", rs_process_pinsrw_unpipelined, dstbuf, srcbuf, size, LH);
